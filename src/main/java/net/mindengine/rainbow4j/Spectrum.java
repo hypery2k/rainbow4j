@@ -18,26 +18,50 @@ package net.mindengine.rainbow4j;
 public class Spectrum {
 
     private final int[][][] data;
-    private final int width;
-    private final int height;
+    private int pixelsAmount;
+    private int precision;
 
     public Spectrum(int[][][] data, int width, int height) {
+        this.precision = data.length;
         this.data = data;
-        this.width = width;
-        this.height = height;
+        this.pixelsAmount = width * height;
     }
 
-    public float getPercentage(int r, int g, int b, int range) {
+    /**
+     * 
+     * @param red 0 to 255 value of red
+     * @param green 0 to 255 value of green
+     * @param blue 0 to 255 value of blue
+     * @param range 0 to 255 value of range within which it should take histogram value
+     * @return
+     */
+    public float getPercentage(int red, int green, int blue, int range) {
 
         long counter = 0;
-        for (int ir = Math.max(0, r - range); ir <= Math.min(r + range, 255); ir++) {
-            for (int ig = Math.max(0, g - range); ig <= Math.min(g + range, 255); ig++) {
-                for (int ib = Math.max(0, b - range); ib <= Math.min(b + range, 255); ib++) {
+        
+        int cr = Math.min(red * precision / 256, precision - 1);
+        int cg = Math.min(green * precision / 256, precision - 1);
+        int cb = Math.min(blue * precision / 256, precision - 1);
+        
+        int crange = Math.min(range * precision / 256, precision - 1);
+        
+        
+        int rRange[] = new int[]{Math.max(0, cr - crange), Math.min(cr + crange, precision - 1)};
+        int gRange[] = new int[]{Math.max(0, cg - crange), Math.min(cg + crange, precision - 1)};
+        int bRange[] = new int[]{Math.max(0, cb - crange), Math.min(cb + crange, precision - 1)};
+        
+        for (int ir = rRange[0]; ir <= rRange[1]; ir++) {
+            for (int ig = gRange[0]; ig <= gRange[1]; ig++) {
+                for (int ib = bRange[0]; ib <= bRange[1]; ib++) {
                     counter += data[ir][ig][ib];
                 }
             }
         }
 
-        return 100.f * counter/(width*height);
+        return 100.f * counter/pixelsAmount;
+    }
+
+    public int getPrecision() {
+        return precision;
     }
 }

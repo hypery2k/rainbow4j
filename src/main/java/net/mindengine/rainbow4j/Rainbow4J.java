@@ -27,10 +27,23 @@ import java.io.InputStream;
 
 public class Rainbow4J {
 
-
-
     public static Spectrum readSpectrum(BufferedImage image) throws IOException {
-        int spectrum[][][] = new int[256][256][256];
+        return readSpectrum(image, 256);
+    }
+
+    /**
+     * 
+     * @param image an image for calculating the color spectrum
+     * @param precision 8 to 256 value for spectrum accuracy. The bigger value - the better precision, but the more memory it takes
+     * @return
+     * @throws IOException
+     */
+    public static Spectrum readSpectrum(BufferedImage image, int precision) throws IOException {
+        
+        if (precision < 8) throw new IllegalArgumentException("Color size should not be less then 8");
+        if (precision > 256) throw new IllegalArgumentException("Color size should not be bigger then 256");
+        
+        int spectrum[][][] = new int[precision][precision][precision];
 
         int width = image.getWidth();
         int height = image.getHeight();
@@ -38,17 +51,19 @@ public class Rainbow4J {
         final byte[] a = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         final boolean hasAlphaChannel = image.getAlphaRaster() != null;
 
-        int k =0;
+        int k = 0;
         int r,g,b;
+        
+        
         for (int i = width*height - 1; i >= 0; i--) {
             if (hasAlphaChannel) {
-                k += 1; //skipping alpha chanel
+                k += 1; //skipping alpha channel
             }
-            r = a[k] & 0xff;
-            g = a[k+1] & 0xff;
-            b = a[k+2] & 0xff;
-
-            spectrum[r][g][b]+= 1;
+            r = (a[k] & 0xff) * precision / 256;
+            g = (a[k+1] & 0xff) * precision / 256;
+            b = (a[k+2] & 0xff) * precision / 256;
+            
+            spectrum[Math.min(r, precision - 1)][Math.min(g, precision - 1)][Math.min(b, precision - 1)]+= 1;
 
             k+=3;
         }
@@ -67,4 +82,6 @@ public class Rainbow4J {
     public static BufferedImage crop(BufferedImage image, int x, int y, int w, int h) {
         return image.getSubimage(x, y, w, h);
     }
+
+    
 }

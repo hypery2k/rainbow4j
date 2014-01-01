@@ -31,6 +31,8 @@ public class Rainbow4JTests {
         BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/test-spectrum-black-white-1.jpg"));
 
         Spectrum spectrum = Rainbow4J.readSpectrum(image);
+        
+        Assert.assertEquals(spectrum.getPrecision(), 256);
 
         Assert.assertEquals((int)spectrum.getPercentage(255,255,255, 0), 67);
         Assert.assertEquals((int) spectrum.getPercentage(0, 0, 0, 0), 30);
@@ -38,6 +40,24 @@ public class Rainbow4JTests {
 
         Assert.assertEquals((int)spectrum.getPercentage(254,254,254, 0), 0);
         Assert.assertEquals((int)spectrum.getPercentage(254,254,254, 1), 68);
+        Assert.assertEquals((int)spectrum.getPercentage(254,250,254, 10), 68);
+    }
+    
+    @Test
+    public void shouldRead_imageSpectrum_withCustomPrecision() throws IOException {
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/test-spectrum-black-white-1.jpg"));
+
+        Spectrum spectrum = Rainbow4J.readSpectrum(image, 64);
+        
+        Assert.assertEquals(spectrum.getPrecision(), 64);
+
+        Assert.assertEquals((int)spectrum.getPercentage(255,255,255, 0), 68);
+        Assert.assertEquals((int) spectrum.getPercentage(0, 0, 0, 0), 31);
+        Assert.assertEquals((int) spectrum.getPercentage(128, 128, 128, 0), 0);
+
+        Assert.assertEquals((int)spectrum.getPercentage(254,254,254, 0), 68);
+        Assert.assertEquals((int)spectrum.getPercentage(253,253,253, 0), 68);
+        Assert.assertEquals((int)spectrum.getPercentage(254,254,254, 5), 68);
         Assert.assertEquals((int)spectrum.getPercentage(254,250,254, 10), 68);
     }
 
