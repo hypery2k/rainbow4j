@@ -50,7 +50,7 @@
   <distributionManagement>
     <repository>
       <id>local-mindengine-repo</id>
-      <url>file:///${basedir}/../maven-repo/repository</url>
+      <url>file:///${basedir}/../../../maven-repo/repository</url>
     </repository>
   </distributionManagement>
   <licenses>
