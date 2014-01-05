@@ -70,22 +70,6 @@ public class Rainbow4J {
             k+=3;
         }
         
-        
-        int pointsnum = 0;
-        for (int i=0;i<precision; i++) {
-            for (int j=0; j<precision; j++) {
-                for(int z=0; z<precision; z++) {
-                    pointsnum += spectrum[i][j][z];
-                    if (spectrum[i][j][z] > 300) {
-                        System.out.println(String.format("(%d, %d, %d) = %d", i,j,z,spectrum[i][j][z]));
-                    }
-                }
-            }
-        }
-
-        System.out.println();
-        System.out.println("Total = " + pointsnum);
-        System.out.println("width*height = " + width*height);
         return new Spectrum(spectrum, width, height);
     }
 
