@@ -15,6 +15,7 @@
 ******************************************************************************/
 package net.mindengine.rainbow4j.tests;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
@@ -100,15 +101,24 @@ public class Rainbow4JTests {
     
     
     @Test
-    public void shouldCropImage_andReadSpecturm() throws IOException {
+    public void shouldReadSpectrum_fromSpecifiedRegion() throws IOException {
         BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/test-spectrum-black-white-1.png").getFile());
 
-        image = Rainbow4J.crop(image, 40, 60, 20, 20);
-        
-        Spectrum spectrum = Rainbow4J.readSpectrum(image);
+        Spectrum spectrum = Rainbow4J.readSpectrum(image, new Rectangle(100, 200, 20, 20));
 
         Assert.assertEquals((int)spectrum.getPercentage(255 ,255, 255, 0), 0);
         Assert.assertEquals((int)spectrum.getPercentage(0, 0, 0, 0), 100);
+        Assert.assertEquals((int)spectrum.getPercentage(128,128,128, 0), 0);
+    }
+    
+    @Test
+    public void shouldCropImage_andReadSpectrum_2() throws IOException {
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/color-scheme-image-1.png").getFile());
+
+        Spectrum spectrum = Rainbow4J.readSpectrum(image, new Rectangle(10, 10, 30, 20));
+        
+        Assert.assertEquals((int)spectrum.getPercentage(255 ,255, 255, 0), 100);
+        Assert.assertEquals((int)spectrum.getPercentage(0, 0, 0, 0), 0);
         Assert.assertEquals((int)spectrum.getPercentage(128,128,128, 0), 0);
     }
 

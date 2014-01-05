@@ -60,6 +60,18 @@ public class Spectrum {
 
         return 100.f * counter/pixelsAmount;
     }
+    
+    public void printColors() {
+        for (int r = 0; r<precision; r++) {
+            for (int g = 0; g<precision; g++) {
+                for (int b = 0; b<precision; b++) {
+                    if (data[r][g][b] > 0) {
+                        System.out.println(String.format("(%d, %d, %d) = %d", r, g, b, data[r][g][b]));
+                    }
+                }
+            }
+        }
+    }
 
     public int getPrecision() {
         return precision;

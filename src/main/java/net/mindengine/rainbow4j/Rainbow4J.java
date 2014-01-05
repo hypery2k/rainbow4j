@@ -16,6 +16,7 @@
 package net.mindengine.rainbow4j;
 
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBufferByte;
@@ -28,8 +29,19 @@ import javax.media.jai.JAI;
 public class Rainbow4J {
 
     public static Spectrum readSpectrum(BufferedImage image) throws IOException {
-        return readSpectrum(image, 256);
+        return readSpectrum(image, null, 256);
     }
+    
+    public static Spectrum readSpectrum(BufferedImage image, Rectangle rectangle) throws IOException {
+        return readSpectrum(image, rectangle, 256);
+    }
+    
+    public static Spectrum readSpectrum(BufferedImage image, int precision) throws IOException {
+        return readSpectrum(image, null, precision);
+    }
+    
+    
+
     
     
     /**
@@ -40,7 +52,7 @@ public class Rainbow4J {
      * @throws IOException
      * @throws MagickException 
      */
-    public static Spectrum readSpectrum(BufferedImage image, int precision) throws IOException {
+    public static Spectrum readSpectrum(BufferedImage image, Rectangle area, int precision) throws IOException {
         
         if (precision < 8) throw new IllegalArgumentException("Color size should not be less then 8");
         if (precision > 256) throw new IllegalArgumentException("Color size should not be bigger then 256");
@@ -52,25 +64,44 @@ public class Rainbow4J {
         
         byte[] a = ((DataBufferByte) image.getData().getDataBuffer()).getData();
         boolean hasAlphaChannel = image.getColorModel().hasAlpha();
+        
+        
+        int blockSize = 3;
+        if (hasAlphaChannel) {
+            blockSize = 4;
+        }
+        
+        int spectrumWidth = width;
+        int spectrumHeight = height;
+        
+        if (area == null) {
+            area = new Rectangle(0, 0, width, height);
+        }
+        else {
+            spectrumWidth = area.width;
+            spectrumHeight = area.height;
+        }
+        
         int k = 0;
         int r,g,b;
         
-        
-        for (int i = width*height - 1; i >= 0; i--) {
-            if (hasAlphaChannel) {
-                k += 1; //skipping alpha channel
+        for (int y = area.y; y < area.y + area.height; y++) {
+            for (int x = area.x; x < area.x + area.width; x++) {
+                k = y * width * blockSize + x * blockSize;
+                
+                if (hasAlphaChannel) {
+                    k += 1;
+                }
+                
+                r = (int)(a[k] & 0xff) * precision / 256;
+                g = (int)(a[k+1] & 0xff) * precision / 256;
+                b = (int)(a[k+2] & 0xff) * precision / 256;
+                
+                spectrum[Math.min(r, precision - 1)][Math.min(g, precision - 1)][Math.min(b, precision - 1)] += 1;
             }
-           
-            r = (int)(a[k] & 0xff) * precision / 256;
-            g = (int)(a[k+1] & 0xff) * precision / 256;
-            b = (int)(a[k+2] & 0xff) * precision / 256;
-            
-            spectrum[Math.min(r, precision - 1)][Math.min(g, precision - 1)][Math.min(b, precision - 1)] += 1;
-            
-            k+=3;
         }
         
-        return new Spectrum(spectrum, width, height);
+        return new Spectrum(spectrum, spectrumWidth, spectrumHeight);
     }
 
     public static BufferedImage loadImage(String filePath) throws IOException{
@@ -102,8 +133,6 @@ public class Rainbow4J {
     }
 
 
-    public static BufferedImage crop(BufferedImage image, int x, int y, int w, int h) {
-        return image.getSubimage(x, y, w, h);
-    }
-        
+    
+    
 }
