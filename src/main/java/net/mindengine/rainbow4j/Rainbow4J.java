@@ -89,10 +89,6 @@ public class Rainbow4J {
             for (int x = area.x; x < area.x + area.width; x++) {
                 k = y * width * blockSize + x * blockSize;
                 
-                if (hasAlphaChannel) {
-                    k += 1;
-                }
-                
                 r = (int)(a[k] & 0xff) * precision / 256;
                 g = (int)(a[k+1] & 0xff) * precision / 256;
                 b = (int)(a[k+2] & 0xff) * precision / 256;

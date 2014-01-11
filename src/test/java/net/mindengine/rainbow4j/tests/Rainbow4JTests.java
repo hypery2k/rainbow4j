@@ -122,4 +122,16 @@ public class Rainbow4JTests {
         Assert.assertEquals((int)spectrum.getPercentage(128,128,128, 0), 0);
     }
 
+    @Test
+    public void shouldReadSpectrum_fromPNG_3() throws IOException{
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/color-scheme-image-2.png").getFile());
+
+        Spectrum spectrum = Rainbow4J.readSpectrum(image, new Rectangle(48, 217, 344, 407));
+
+        spectrum.printColors();
+        
+        Assert.assertEquals((int)spectrum.getPercentage(170, 170, 170, 5), 2);
+        Assert.assertEquals((int)spectrum.getPercentage(119, 119, 119, 5), 1);
+        Assert.assertEquals((int)spectrum.getPercentage(255, 255, 255, 5), 95);
+    }
 }
