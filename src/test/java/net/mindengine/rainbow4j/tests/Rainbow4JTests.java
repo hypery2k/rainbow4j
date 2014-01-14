@@ -15,10 +15,13 @@
 ******************************************************************************/
 package net.mindengine.rainbow4j.tests;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.List;
 
+import net.mindengine.rainbow4j.ColorDistribution;
 import net.mindengine.rainbow4j.Rainbow4J;
 import net.mindengine.rainbow4j.Spectrum;
 
@@ -133,5 +136,28 @@ public class Rainbow4JTests {
         Assert.assertEquals((int)spectrum.getPercentage(170, 170, 170, 5), 2);
         Assert.assertEquals((int)spectrum.getPercentage(119, 119, 119, 5), 1);
         Assert.assertEquals((int)spectrum.getPercentage(255, 255, 255, 5), 95);
+    }
+    
+    @Test
+    public void shouldGive_colorDistribution() throws IOException {
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/color-scheme-image-1.png").getFile());
+
+        Spectrum spectrum = Rainbow4J.readSpectrum(image);
+        
+        List<ColorDistribution> colors = spectrum.getColorDistribution(3);
+        
+        Assert.assertEquals(colors.size(), 4);
+        
+        Assert.assertEquals(colors.get(0).getColor(), new Color(0, 0, 0));
+        Assert.assertEquals((int)colors.get(0).getPercentage(), 14);
+        
+        Assert.assertEquals(colors.get(1).getColor(), new Color(58, 112, 207));
+        Assert.assertEquals((int)colors.get(1).getPercentage(), 8);
+        
+        Assert.assertEquals(colors.get(2).getColor(), new Color(207, 71, 29));
+        Assert.assertEquals((int)colors.get(2).getPercentage(), 32);
+        
+        Assert.assertEquals(colors.get(3).getColor(), new Color(255, 255, 255));
+        Assert.assertEquals((int)colors.get(3).getPercentage(), 44);
     }
 }
