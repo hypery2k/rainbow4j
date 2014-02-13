@@ -29,7 +29,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 
-public class Rainbow4JTests {
+public class Rainbow4JTest {
 
     @Test
     public void shouldRead_imageSpectrum_withCustomPrecision() throws IOException {
@@ -131,8 +131,6 @@ public class Rainbow4JTests {
 
         Spectrum spectrum = Rainbow4J.readSpectrum(image, new Rectangle(48, 217, 344, 407));
 
-        spectrum.printColors();
-        
         Assert.assertEquals((int)spectrum.getPercentage(170, 170, 170, 5), 2);
         Assert.assertEquals((int)spectrum.getPercentage(119, 119, 119, 5), 1);
         Assert.assertEquals((int)spectrum.getPercentage(255, 255, 255, 5), 95);
