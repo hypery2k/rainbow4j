@@ -13,12 +13,6 @@
     <url>git@github.com/galenframework/rainbow4j.git</url>
   </scm>
 
-  <parent>
-    <groupId>org.sonatype.oss</groupId>
-    <artifactId>oss-parent</artifactId>
-    <version>7</version>
-  </parent>
-
   <dependencies>
     <dependency>
       <groupId>org.testng</groupId>
