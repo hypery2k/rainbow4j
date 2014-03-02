@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.mindengine</groupId>
   <artifactId>rainbow4j</artifactId>
-  <version>0.2.4</version>
+  <version>0.2.5-SNAPSHOT</version>
   <name>Rainbow4J</name>
   <packaging>jar</packaging>
   <description>A library for working with images</description>
@@ -11,7 +11,7 @@
   <scm>
     <connection>scm:git:ssh://git@github.com/galenframework/rainbow4j.git</connection>
     <url>git@github.com/galenframework/rainbow4j.git</url>
-    <tag>rainbow4j-0.2.4</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <dependencies>
