@@ -9,8 +9,8 @@
   <description>A library for working with images</description>
   <url>https://github.com/galenframework/rainbow4j</url>
   <scm>
-    <url>https://github.com/galenframework/rainbow4j</url>
     <connection>scm:git:ssh://git@github.com/galenframework/rainbow4j.git</connection>
+    <url>git@github.com/galenframework/rainbow4j.git</url>
   </scm>
 
   <parent>
