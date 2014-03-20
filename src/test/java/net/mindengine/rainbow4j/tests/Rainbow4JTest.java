@@ -33,7 +33,7 @@ public class Rainbow4JTest {
 
     @Test
     public void shouldRead_imageSpectrum_withCustomPrecision() throws IOException {
-        BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/test-spectrum-black-white-1.jpg").getFile());
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/test-spectrum-black-white-1.png").getFile());
 
         Spectrum spectrum = Rainbow4J.readSpectrum(image, 64);
         
@@ -65,7 +65,7 @@ public class Rainbow4JTest {
         Assert.assertEquals((int)spectrum.getPercentage(254,250,254, 10), 68);
     }
     
-    @Test
+    @Test(enabled = false)
     public void shouldRead_imageSpectrum_fromJPG() throws IOException {
         BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/test-spectrum-black-white-1.jpg").getFile());
 
@@ -91,7 +91,7 @@ public class Rainbow4JTest {
         Assert.assertEquals((int)spectrum.getPercentage(207, 71, 29, 5), 32);
     }
     
-    @Test
+    @Test(enabled = false)
     public void shouldRead_imageSpectrum_fromJPG_2() throws IOException {
         BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/color-scheme-image-1.jpg").getFile());
 
