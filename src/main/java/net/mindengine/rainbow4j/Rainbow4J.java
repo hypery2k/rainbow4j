@@ -16,13 +16,16 @@
 package net.mindengine.rainbow4j;
 
 
-import java.awt.Rectangle;
+import com.sun.media.jai.codec.SeekableStream;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.DataBufferByte;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Hashtable;
 
 import javax.media.jai.JAI;
@@ -39,18 +42,65 @@ public class Rainbow4J {
     public static Spectrum readSpectrum(BufferedImage image, int precision) throws IOException {
         return readSpectrum(image, null, precision);
     }
-    
-    
 
-    
-    
+
+
+    public static double compare(BufferedImage imageA, BufferedImage imageB, int pixelSmooth) {
+
+        int width = imageA.getWidth();
+        int height = imageA.getHeight();
+
+        if (width != imageB.getWidth() || height != imageB.getHeight()) {
+            throw new RuntimeException("Cannot compare images with different sizes");
+        }
+
+        ImageNavigator navA = new ImageNavigator(imageA);
+        ImageNavigator navB = new ImageNavigator(imageB);
+
+        int y = 0, x = 0;
+
+        int step = 1 + pixelSmooth * 2;
+
+        double sumDiff = 0;
+        double maxSumDiff = 0;
+
+        double maxDiff = 255.0  * 3;
+
+        while(y < height) {
+            while (x < width) {
+                Color cA = navA.getSmoothedColor(x, y, x + step, y + step);
+                Color cB = navB.getSmoothedColor(x, y, x + step, y + step);
+
+                double ratio = edgeCorrectionRatio(x, y, step, width, height);
+
+                sumDiff += ImageNavigator.colorDiff(cA, cB) * ratio;
+                maxSumDiff += Math.max(0, (maxDiff - sumDiff) * ratio);
+                x += step;
+            }
+            y += step;
+            x = 0;
+        }
+
+
+        return 100.0 * sumDiff / maxSumDiff;
+    }
+
+    private static double edgeCorrectionRatio(int x, int y, int step, int width, int height) {
+        int dw = width - x;
+        int dh = height - y;
+
+        if (dw < step || dh < step) {
+            return Math.min(dw, step) * Math.min(dh, step) / (step * step);
+        }
+        return 1.0;
+    }
+
     /**
      * 
      * @param image an image for calculating the color spectrum
      * @param precision 8 to 256 value for spectrum accuracy. The bigger value - the better precision, but the more memory it takes
      * @return
      * @throws IOException
-     * @throws MagickException 
      */
     public static Spectrum readSpectrum(BufferedImage image, Rectangle area, int precision) throws IOException {
         
@@ -64,8 +114,6 @@ public class Rainbow4J {
         
         byte[] a = ((DataBufferByte) image.getData().getDataBuffer()).getData();
         boolean hasAlphaChannel = image.getColorModel().hasAlpha();
-        
-        
         int blockSize = 3;
         if (hasAlphaChannel) {
             blockSize = 4;
@@ -100,9 +148,17 @@ public class Rainbow4J {
         return new Spectrum(spectrum, spectrumWidth, spectrumHeight);
     }
 
+
+
     public static BufferedImage loadImage(String filePath) throws IOException{
         RenderedImage image = JAI.create("fileload", filePath);
         
+        return convertRenderedImage(image);
+    }
+
+    public static BufferedImage loadImage(InputStream stream) {
+        SeekableStream sStream = SeekableStream.wrapInputStream(stream, true);
+        RenderedImage image = JAI.create("stream", sStream);
         return convertRenderedImage(image);
     }
     
@@ -129,6 +185,4 @@ public class Rainbow4J {
     }
 
 
-    
-    
 }

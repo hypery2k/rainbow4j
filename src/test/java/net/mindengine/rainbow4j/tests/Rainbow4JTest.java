@@ -25,11 +25,18 @@ import net.mindengine.rainbow4j.ColorDistribution;
 import net.mindengine.rainbow4j.Rainbow4J;
 import net.mindengine.rainbow4j.Spectrum;
 
+import org.hamcrest.Matchers;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
 
 public class Rainbow4JTest {
+
+    private static final int PIXEL_SMOOTH_1 = 1;
 
     @Test
     public void shouldRead_imageSpectrum_withCustomPrecision() throws IOException {
@@ -79,7 +86,15 @@ public class Rainbow4JTest {
         Assert.assertEquals((int)spectrum.getPercentage(254,254,254, 1), 68);
         Assert.assertEquals((int)spectrum.getPercentage(254,250,254, 10), 68);
     }
-    
+
+
+    @Test
+    public void shouldRead_image_fromStream() throws IOException {
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/color-scheme-image-1.png"));
+
+        Assert.assertEquals(image.getWidth(), 778);
+        Assert.assertEquals(image.getHeight(), 392);
+    }
     
     @Test
     public void shouldRead_imageSpectrum_fromPNG_2() throws IOException {
@@ -158,4 +173,41 @@ public class Rainbow4JTest {
         Assert.assertEquals(colors.get(3).getColor(), new Color(255, 255, 255));
         Assert.assertEquals((int)colors.get(3).getPercentage(), 44);
     }
+
+
+    @Test(expectedExceptions = {RuntimeException.class},
+            expectedExceptionsMessageRegExp = "Cannot compare images with different sizes"
+    )
+    public void shouldThrowException_whenComparingImages_ofDifferentSizes() throws IOException {
+        BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
+        BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/color-scheme-image-1.png").getFile());
+
+        Rainbow4J.compare(imageA, imageB, PIXEL_SMOOTH_1);
+    }
+
+    @Test(dataProvider = "imageCompareProvider")
+    public void shouldCompare_images(int pixelSmooth, double minDiff, double maxDiff) throws IOException {
+        BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
+        BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/comp-image-2.jpg").getFile());
+
+        double diff = Rainbow4J.compare(imageA, imageB, pixelSmooth);
+
+        System.out.println(diff);
+
+        assertThat(diff, is(greaterThan(minDiff)));
+        assertThat(diff, is(lessThan(maxDiff)));
+    }
+
+    @DataProvider
+    public Object[][] imageCompareProvider() {
+        return new Object[][] {
+                //pixelsmooth,  mindiff, maxdiff
+                {0, 1.2, 1.5},
+                {1, 1.3, 1.5},
+                {2, 1.3, 1.5},
+                {10, 1.3,1.5}
+        };
+    }
+
+
 }
