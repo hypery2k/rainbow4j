@@ -52,42 +52,50 @@ public class Rainbow4J {
         }
 
 
-        int width = imageA.getWidth();
-        int height = imageA.getHeight();
+        int widthA = imageA.getWidth();
+        int heightA = imageA.getHeight();
 
-        if (width != imageB.getWidth() || height != imageB.getHeight()) {
-            throw new RuntimeException("Cannot compare images with different sizes");
-        }
+        int widthB = imageB.getWidth();
+        int heightB = imageB.getHeight();
 
         ImageNavigator navA = new ImageNavigator(imageA);
         ImageNavigator navB = new ImageNavigator(imageB);
 
-        int y = 0, x = 0;
+        int yA = 0, xA = 0;
 
         int step = 1 + pixelSmooth * 2;
 
+        double kx = ((double)widthB) / ((double)widthA);
+        double ky = ((double)heightB) / ((double)heightA);
+
+        int stepB_x = 1 + (int)(pixelSmooth * 2.0 * kx);
+        int stepB_y = 1 + (int)(pixelSmooth * 2.0 * ky);
+
         double totalMismatchingPixels = 0;
 
-        while(y < height) {
-            while (x < width) {
-                Color cA = navA.getSmoothedColor(x, y, x + step, y + step);
-                Color cB = navB.getSmoothedColor(x, y, x + step, y + step);
+        while(yA < heightA) {
+            while (xA < widthA) {
+                Color cA = navA.getSmoothedColor(xA, yA, xA + step, yA + step);
 
-                double ratio = edgeCorrectionRatio(x, y, step, width, height);
+                int xB = (int)(((double)xA) * kx);
+                int yB = (int)(((double)yA) * ky);
+                Color cB = navB.getSmoothedColor(xB, yB, xB + stepB_x, yB + stepB_y);
+
+                double ratio = edgeCorrectionRatio(xA, yA, step, widthA, heightA);
 
                 long colorError = ImageNavigator.colorDiff(cA, cB);
                 if (colorError > tolerance) {
                     totalMismatchingPixels += ratio * step * step;
                 }
 
-                x += step;
+                xA += step;
             }
-            y += step;
-            x = 0;
+            yA += step;
+            xA = 0;
         }
 
         ImageCompareResult result = new ImageCompareResult();
-        result.setPercentage(100.0 * totalMismatchingPixels / (width * height));
+        result.setPercentage(100.0 * totalMismatchingPixels / (widthA * heightA));
 
 
         result.setTotalPixels((long)totalMismatchingPixels);

@@ -43,8 +43,9 @@ public class ImageNavigator {
         if (x < 0) x = 0;
         if (y < 0) y = 0;
 
-        if (x >= w) x = w - 1;
-        if (y >= h) y = h - 1;
+        if (x >= w || y >= h) {
+            throw new RuntimeException("pixel is out of range");
+        }
 
         if (x2 >= w) x2 = w - 1;
         if (y2 >= h) y2 = h - 1;

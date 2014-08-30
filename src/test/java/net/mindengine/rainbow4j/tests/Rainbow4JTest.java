@@ -176,15 +176,6 @@ public class Rainbow4JTest {
     }
 
 
-    @Test(expectedExceptions = {RuntimeException.class},
-            expectedExceptionsMessageRegExp = "Cannot compare images with different sizes"
-    )
-    public void shouldThrowException_whenComparingImages_ofDifferentSizes() throws IOException {
-        BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
-        BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/color-scheme-image-1.png").getFile());
-
-        Rainbow4J.compare(imageA, imageB, PIXEL_SMOOTH_1, 1);
-    }
 
     @Test(dataProvider = "imageCompareProvider")
     public void shouldCompare_images(int pixelSmooth, double minDiff, double maxDiff, long expectedTotalPixels) throws IOException {
@@ -198,6 +189,32 @@ public class Rainbow4JTest {
 
         assertThat(diff.getTotalPixels(), is(expectedTotalPixels));
     }
+
+    @Test
+    public void shouldCompare_sameImages_ofDifferentSizes() throws IOException {
+        BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
+        BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/comp-image-1-scaled-down.jpg").getFile());
+
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 1, 5);
+
+        assertThat(diff.getTotalPixels(), is(lessThan(1L)));
+        assertThat(diff.getPercentage(), is(lessThan(0.0001)));
+    }
+
+    @Test
+    public void shouldCompare_differentImages_withDifferentSizes() throws IOException {
+        BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
+        BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/comp-image-3-scaled-down.jpg").getFile());
+
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 1, 5);
+
+        assertThat(diff.getTotalPixels(), is(greaterThan(17610L)));
+        assertThat(diff.getTotalPixels(), is(lessThan(17630L)));
+
+        assertThat(diff.getPercentage(), is(greaterThan(7.045)));
+        assertThat(diff.getPercentage(), is(lessThan(7.05)));
+    }
+
 
     @DataProvider
     public Object[][] imageCompareProvider() {
