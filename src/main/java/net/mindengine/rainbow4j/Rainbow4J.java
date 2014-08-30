@@ -45,7 +45,12 @@ public class Rainbow4J {
 
 
 
-    public static double compare(BufferedImage imageA, BufferedImage imageB, int pixelSmooth) {
+    public static ImageCompareResult compare(BufferedImage imageA, BufferedImage imageB, int pixelSmooth, int tolerance) {
+
+        if (tolerance < 0 ) {
+            tolerance = 0;
+        }
+
 
         int width = imageA.getWidth();
         int height = imageA.getHeight();
@@ -61,10 +66,7 @@ public class Rainbow4J {
 
         int step = 1 + pixelSmooth * 2;
 
-        double sumDiff = 0;
-        double maxSumDiff = 0;
-
-        double maxDiff = 255.0  * 3;
+        double totalMismatchingPixels = 0;
 
         while(y < height) {
             while (x < width) {
@@ -73,16 +75,23 @@ public class Rainbow4J {
 
                 double ratio = edgeCorrectionRatio(x, y, step, width, height);
 
-                sumDiff += ImageNavigator.colorDiff(cA, cB) * ratio;
-                maxSumDiff += Math.max(0, (maxDiff - sumDiff) * ratio);
+                long colorError = ImageNavigator.colorDiff(cA, cB);
+                if (colorError > tolerance) {
+                    totalMismatchingPixels += ratio * step * step;
+                }
+
                 x += step;
             }
             y += step;
             x = 0;
         }
 
+        ImageCompareResult result = new ImageCompareResult();
+        result.setPercentage(100.0 * totalMismatchingPixels / (width * height));
 
-        return 100.0 * sumDiff / maxSumDiff;
+
+        result.setTotalPixels((long)totalMismatchingPixels);
+        return result;
     }
 
     private static double edgeCorrectionRatio(int x, int y, int step, int width, int height) {

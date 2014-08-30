@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 import net.mindengine.rainbow4j.ColorDistribution;
+import net.mindengine.rainbow4j.ImageCompareResult;
 import net.mindengine.rainbow4j.Rainbow4J;
 import net.mindengine.rainbow4j.Spectrum;
 
@@ -182,30 +183,30 @@ public class Rainbow4JTest {
         BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/color-scheme-image-1.png").getFile());
 
-        Rainbow4J.compare(imageA, imageB, PIXEL_SMOOTH_1);
+        Rainbow4J.compare(imageA, imageB, PIXEL_SMOOTH_1, 1);
     }
 
     @Test(dataProvider = "imageCompareProvider")
-    public void shouldCompare_images(int pixelSmooth, double minDiff, double maxDiff) throws IOException {
+    public void shouldCompare_images(int pixelSmooth, double minDiff, double maxDiff, long expectedTotalPixels) throws IOException {
         BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/comp-image-2.jpg").getFile());
 
-        double diff = Rainbow4J.compare(imageA, imageB, pixelSmooth);
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, pixelSmooth, 1);
 
-        System.out.println(diff);
+        assertThat(diff.getPercentage(), is(greaterThan(minDiff)));
+        assertThat(diff.getPercentage(), is(lessThan(maxDiff)));
 
-        assertThat(diff, is(greaterThan(minDiff)));
-        assertThat(diff, is(lessThan(maxDiff)));
+        assertThat(diff.getTotalPixels(), is(expectedTotalPixels));
     }
 
     @DataProvider
     public Object[][] imageCompareProvider() {
         return new Object[][] {
-                //pixelsmooth,  mindiff, maxdiff
-                {0, 1.2, 1.5},
-                {1, 1.3, 1.5},
-                {2, 1.3, 1.5},
-                {10, 1.3,1.5}
+                //pixelsmooth,  mindiff, maxdiff, total pixels
+                {0, 0.76, 0.765, 1902},
+                {1, 0.92, 0.925, 2304},
+                {2, 1.08, 1.1, 2725},
+                {10, 2.29, 2.3, 5733}
         };
     }
 
