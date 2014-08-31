@@ -46,57 +46,89 @@ public class Rainbow4J {
 
 
     public static ImageCompareResult compare(BufferedImage imageA, BufferedImage imageB, int pixelSmooth, int tolerance) {
+        return compare(imageA, imageB, pixelSmooth, tolerance,
+                new Rectangle(0, 0, imageA.getWidth(), imageA.getHeight()),
+                new Rectangle(0, 0, imageB.getWidth(), imageB.getHeight()));
+    }
 
+
+    public static ImageCompareResult compare(BufferedImage imageA, BufferedImage imageB, int pixelSmooth, int tolerance, Rectangle areaA, Rectangle areaB) {
         if (tolerance < 0 ) {
             tolerance = 0;
         }
 
+        if (areaA.width + areaA.x > imageA.getWidth() ||
+            areaA.height + areaA.y > imageA.getHeight()) {
+            throw new RuntimeException("Specified area is outside for original image");
+        }
+        if (areaB.width + areaB.x > imageB.getWidth() ||
+                areaB.height + areaB.y > imageB.getHeight()) {
+            throw new RuntimeException("Specified area is outside for secondary image");
+        }
 
-        int widthA = imageA.getWidth();
-        int heightA = imageA.getHeight();
+        int Cax = areaA.x;
+        int Cay = areaA.y;
 
-        int widthB = imageB.getWidth();
-        int heightB = imageB.getHeight();
+        int Cbx = areaB.x;
+        int Cby = areaB.y;
+
+        int Wa = areaA.width;
+        int Ha = areaA.height;
+
+        int Wb = areaB.width;
+        int Hb = areaB.height;
+
+        double Kx = ((double)Wb) / ((double)Wa);
+        double Ky = ((double)Hb) / ((double)Ha);
+
 
         ImageNavigator navA = new ImageNavigator(imageA);
         ImageNavigator navB = new ImageNavigator(imageB);
 
-        int yA = 0, xA = 0;
+        int x = 0, y = 0;
 
-        int step = 1 + pixelSmooth * 2;
-
-        double kx = ((double)widthB) / ((double)widthA);
-        double ky = ((double)heightB) / ((double)heightA);
-
-        int stepB_x = 1 + (int)(pixelSmooth * 2.0 * kx);
-        int stepB_y = 1 + (int)(pixelSmooth * 2.0 * ky);
-
+        /*int step = 1 + pixelSmooth * 2;
+        int stepB_x = 1 + (int)(pixelSmooth * 2.0 * Kx);
+        int stepB_y = 1 + (int)(pixelSmooth * 2.0 * Ky);
+*/
         double totalMismatchingPixels = 0;
 
-        while(yA < heightA) {
-            while (xA < widthA) {
-                Color cA = navA.getSmoothedColor(xA, yA, xA + step, yA + step);
+        while(y < Ha) {
+            while (x < Wa) {
+                int xA = x + Cax;
+                int yA = y + Cay;
 
-                int xB = (int)(((double)xA) * kx);
-                int yB = (int)(((double)yA) * ky);
-                Color cB = navB.getSmoothedColor(xB, yB, xB + stepB_x, yB + stepB_y);
+                Color cA = navA.getSmoothedColor(Math.max(Cax, xA - pixelSmooth),
+                                                Math.max(Cay, yA - pixelSmooth),
+                                                Math.min(Cax + Wa, xA + pixelSmooth),
+                                                Math.min(Cay + Ha, yA + pixelSmooth));
 
-                double ratio = edgeCorrectionRatio(xA, yA, step, widthA, heightA);
+                int xB = (int)Math.round((((double)x) * Kx) + Cbx);
+                int yB = (int)Math.round(((double)y) * Ky + Cby);
+
+                xB = Math.min(xB, Cbx + Wb - 1);
+                yB = Math.min(yB, Cby + Hb - 1);
+
+                Color cB = navB.getSmoothedColor(Math.max(Cbx, xB - pixelSmooth),
+                        Math.max(Cby, yB - pixelSmooth),
+                        Math.min(Cbx + Wb, xB + pixelSmooth),
+                        Math.min(Cby + Hb, yB + pixelSmooth));
 
                 long colorError = ImageNavigator.colorDiff(cA, cB);
                 if (colorError > tolerance) {
-                    totalMismatchingPixels += ratio * step * step;
+                    totalMismatchingPixels += 1;
                 }
 
-                xA += step;
+                x += 1;
             }
-            yA += step;
-            xA = 0;
+            y += 1;
+            x = 0;
         }
 
         ImageCompareResult result = new ImageCompareResult();
-        result.setPercentage(100.0 * totalMismatchingPixels / (widthA * heightA));
 
+        double totalPixels = (Wa * Ha);
+        result.setPercentage(100.0 * totalMismatchingPixels / totalPixels);
 
         result.setTotalPixels((long)totalMismatchingPixels);
         return result;
@@ -113,32 +145,32 @@ public class Rainbow4J {
     }
 
     /**
-     * 
+     *
      * @param image an image for calculating the color spectrum
      * @param precision 8 to 256 value for spectrum accuracy. The bigger value - the better precision, but the more memory it takes
      * @return
      * @throws IOException
      */
     public static Spectrum readSpectrum(BufferedImage image, Rectangle area, int precision) throws IOException {
-        
+
         if (precision < 8) throw new IllegalArgumentException("Color size should not be less then 8");
         if (precision > 256) throw new IllegalArgumentException("Color size should not be bigger then 256");
-        
+
         int spectrum[][][] = new int[precision][precision][precision];
 
         int width = image.getWidth();
         int height = image.getHeight();
-        
+
         byte[] a = ((DataBufferByte) image.getData().getDataBuffer()).getData();
         boolean hasAlphaChannel = image.getColorModel().hasAlpha();
         int blockSize = 3;
         if (hasAlphaChannel) {
             blockSize = 4;
         }
-        
+
         int spectrumWidth = width;
         int spectrumHeight = height;
-        
+
         if (area == null) {
             area = new Rectangle(0, 0, width, height);
         }
@@ -146,22 +178,22 @@ public class Rainbow4J {
             spectrumWidth = area.width;
             spectrumHeight = area.height;
         }
-        
+
         int k = 0;
         int r,g,b;
-        
+
         for (int y = area.y; y < area.y + area.height; y++) {
             for (int x = area.x; x < area.x + area.width; x++) {
                 k = y * width * blockSize + x * blockSize;
-                
+
                 r = (int)(a[k] & 0xff) * precision / 256;
                 g = (int)(a[k+1] & 0xff) * precision / 256;
                 b = (int)(a[k+2] & 0xff) * precision / 256;
-                
+
                 spectrum[Math.min(r, precision - 1)][Math.min(g, precision - 1)][Math.min(b, precision - 1)] += 1;
             }
         }
-        
+
         return new Spectrum(spectrum, spectrumWidth, spectrumHeight);
     }
 
@@ -169,7 +201,7 @@ public class Rainbow4J {
 
     public static BufferedImage loadImage(String filePath) throws IOException{
         RenderedImage image = JAI.create("fileload", filePath);
-        
+
         return convertRenderedImage(image);
     }
 
@@ -178,12 +210,12 @@ public class Rainbow4J {
         RenderedImage image = JAI.create("stream", sStream);
         return convertRenderedImage(image);
     }
-    
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static BufferedImage convertRenderedImage(RenderedImage img) {
         if (img instanceof BufferedImage) {
-            return (BufferedImage)img;  
-        }   
+            return (BufferedImage)img;
+        }
         ColorModel cm = img.getColorModel();
         int width = img.getWidth();
         int height = img.getHeight();
@@ -200,6 +232,4 @@ public class Rainbow4J {
         img.copyData(raster);
         return result;
     }
-
-
 }

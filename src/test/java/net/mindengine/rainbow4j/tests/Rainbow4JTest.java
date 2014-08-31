@@ -37,7 +37,6 @@ import static org.hamcrest.Matchers.*;
 
 public class Rainbow4JTest {
 
-    private static final int PIXEL_SMOOTH_1 = 1;
 
     @Test
     public void shouldRead_imageSpectrum_withCustomPrecision() throws IOException {
@@ -178,14 +177,14 @@ public class Rainbow4JTest {
 
 
     @Test(dataProvider = "imageCompareProvider")
-    public void shouldCompare_images(int pixelSmooth, double minDiff, double maxDiff, long expectedTotalPixels) throws IOException {
+    public void shouldCompare_images(int pixelSmooth, double approxPercentage, long expectedTotalPixels) throws IOException {
         BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/comp-image-2.jpg").getFile());
 
         ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, pixelSmooth, 1);
 
-        assertThat(diff.getPercentage(), is(greaterThan(minDiff)));
-        assertThat(diff.getPercentage(), is(lessThan(maxDiff)));
+        assertThat(diff.getPercentage(), is(greaterThan(approxPercentage - 0.02)));
+        assertThat(diff.getPercentage(), is(lessThan(approxPercentage + 0.02)));
 
         assertThat(diff.getTotalPixels(), is(expectedTotalPixels));
     }
@@ -195,10 +194,10 @@ public class Rainbow4JTest {
         BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/comp-image-1-scaled-down.jpg").getFile());
 
-        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 1, 5);
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 0, 10);
 
-        assertThat(diff.getTotalPixels(), is(lessThan(1L)));
-        assertThat(diff.getPercentage(), is(lessThan(0.0001)));
+        assertThat(diff.getTotalPixels(), is(lessThan(5700L)));
+        assertThat(diff.getPercentage(), is(lessThan(2.26)));
     }
 
     @Test
@@ -206,24 +205,36 @@ public class Rainbow4JTest {
         BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/comp-image-3-scaled-down.jpg").getFile());
 
-        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 1, 5);
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 0, 10);
 
-        assertThat(diff.getTotalPixels(), is(greaterThan(17610L)));
-        assertThat(diff.getTotalPixels(), is(lessThan(17630L)));
+        assertThat(diff.getTotalPixels(), is(greaterThan(13800L)));
+        assertThat(diff.getTotalPixels(), is(lessThan(14000L)));
 
-        assertThat(diff.getPercentage(), is(greaterThan(7.045)));
-        assertThat(diff.getPercentage(), is(lessThan(7.05)));
+        assertThat(diff.getPercentage(), is(greaterThan(5.4)));
+        assertThat(diff.getPercentage(), is(lessThan(5.6)));
+    }
+
+    @Test
+    public void shouldCompare_images_withOnlyPartialRegions() throws IOException {
+        BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/page-screenshot.png").getFile());
+        BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/page-sample-correct.png").getFile());
+
+
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 0, 2, new Rectangle(100, 90, 100, 40), new Rectangle(40, 40, 100, 40));
+
+        assertThat(diff.getTotalPixels(), is(lessThan(2L)));
+        assertThat(diff.getPercentage(), is(lessThan(0.01)));
     }
 
 
     @DataProvider
     public Object[][] imageCompareProvider() {
         return new Object[][] {
-                //pixelsmooth,  mindiff, maxdiff, total pixels
-                {0, 0.76, 0.765, 1902},
-                {1, 0.92, 0.925, 2304},
-                {2, 1.08, 1.1, 2725},
-                {10, 2.29, 2.3, 5733}
+                //pixelsmooth,  approx percentage, total pixels
+                {0, 0.57, 1436L},
+                {1, 0.85, 2148},
+                {2, 1.0116, 2529},
+                {10, 1.95, 4896}
         };
     }
 
