@@ -16,7 +16,7 @@
 package net.mindengine.rainbow4j;
 
 
-import com.sun.media.jai.codec.SeekableStream;
+import com.sun.media.jai.codec.*;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -24,6 +24,8 @@ import java.awt.image.ColorModel;
 import java.awt.image.DataBufferByte;
 import java.awt.image.RenderedImage;
 import java.awt.image.WritableRaster;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
@@ -197,8 +199,6 @@ public class Rainbow4J {
         return new Spectrum(spectrum, spectrumWidth, spectrumHeight);
     }
 
-
-
     public static BufferedImage loadImage(String filePath) throws IOException{
         RenderedImage image = JAI.create("fileload", filePath);
 
@@ -231,5 +231,30 @@ public class Rainbow4J {
         BufferedImage result = new BufferedImage(cm, raster, isAlphaPremultiplied, properties);
         img.copyData(raster);
         return result;
+    }
+
+    public static void saveImage(BufferedImage image, File file) throws IOException {
+
+        PNGEncodeParam pngEncode = new PNGEncodeParam() {
+            @Override
+            public void setBitDepth(int i) {
+
+            }
+            @Override
+            public boolean isBackgroundSet() {
+                return false;
+            }
+        };
+
+        FileOutputStream out = new FileOutputStream(file);
+
+        ImageEncoder encoder = ImageCodec.createImageEncoder("PNG", out, pngEncode);
+
+        BufferedImage newImage = new BufferedImage( image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        newImage.createGraphics().drawImage( image, 0, 0, Color.BLACK, null);
+
+
+        encoder.encode(newImage);
+        out.close();
     }
 }

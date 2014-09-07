@@ -18,6 +18,7 @@ package net.mindengine.rainbow4j.tests;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -36,6 +37,21 @@ import static org.hamcrest.Matchers.*;
 
 
 public class Rainbow4JTest {
+
+
+    @Test
+    public void shouldSave_imageAsPng() throws IOException {
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/test-spectrum-black-white-1.png").getFile());
+
+        File file = File.createTempFile("test-rainbow4j-image", ".png");
+        Rainbow4J.saveImage(image, file);
+
+        assertThat("File should exist", file.exists());
+        BufferedImage image2 = Rainbow4J.loadImage(file.getAbsolutePath());
+        assertThat("Width should be same as original width", image2.getWidth(), is(image.getWidth()));
+        assertThat("Height should be same as original height", image2.getHeight(), is(image.getHeight()));
+    }
+
 
 
     @Test
