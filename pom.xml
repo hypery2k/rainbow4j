@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.mindengine</groupId>
   <artifactId>rainbow4j</artifactId>
-  <version>0.3.1</version>
+  <version>0.3.2-SNAPSHOT</version>
   <name>Rainbow4J</name>
   <packaging>jar</packaging>
   <description>A library for working with images</description>
