@@ -243,6 +243,18 @@ public class Rainbow4JTest {
     }
 
 
+    @Test
+    public void shouldCompare_images_andReturn_comparisonMap() throws IOException {
+        BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/page-screenshot-1.png").getFile());
+        BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/page-screenshot-1-sample-1.png").getFile());
+
+
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 5, 100, new Rectangle(0, 70, 100, 64), new Rectangle(0, 0, imageB.getWidth(), imageB.getHeight()));
+
+        assertThat(diff.getComparisonMap(), is(notNullValue()));
+    }
+
+
     @DataProvider
     public Object[][] imageCompareProvider() {
         return new Object[][] {

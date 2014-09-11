@@ -68,6 +68,8 @@ public class Rainbow4J {
             throw new RuntimeException("Specified area is outside for secondary image");
         }
 
+        BufferedImage comparisonMap = new BufferedImage(areaA.width, areaA.height, BufferedImage.TYPE_INT_RGB);
+
         int Cax = areaA.x;
         int Cay = areaA.y;
 
@@ -89,10 +91,6 @@ public class Rainbow4J {
 
         int x = 0, y = 0;
 
-        /*int step = 1 + pixelSmooth * 2;
-        int stepB_x = 1 + (int)(pixelSmooth * 2.0 * Kx);
-        int stepB_y = 1 + (int)(pixelSmooth * 2.0 * Ky);
-*/
         double totalMismatchingPixels = 0;
 
         while(y < Ha) {
@@ -119,6 +117,22 @@ public class Rainbow4J {
                 long colorError = ImageNavigator.colorDiff(cA, cB);
                 if (colorError > tolerance) {
                     totalMismatchingPixels += 1;
+
+                    int color = 0xff3333;
+                    if (tolerance > 0) {
+                        int level = (int) (colorError / tolerance);
+                        if (level == 2) {
+                            color = 0xFFEA00;
+                        }
+                        else if (level < 2) {
+                            color = 0x00ff00;
+                        }
+                    }
+
+                    comparisonMap.setRGB(x, y, color);
+                }
+                else {
+                    comparisonMap.setRGB(x, y, 0x000000);
                 }
 
                 x += 1;
@@ -133,6 +147,7 @@ public class Rainbow4J {
         result.setPercentage(100.0 * totalMismatchingPixels / totalPixels);
 
         result.setTotalPixels((long)totalMismatchingPixels);
+        result.setComparisonMap(comparisonMap);
         return result;
     }
 
