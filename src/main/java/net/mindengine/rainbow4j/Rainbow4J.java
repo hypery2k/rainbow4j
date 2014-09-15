@@ -47,16 +47,17 @@ public class Rainbow4J {
 
 
 
-    public static ImageCompareResult compare(BufferedImage imageA, BufferedImage imageB, int pixelSmooth, int tolerance) {
-        return compare(imageA, imageB, pixelSmooth, tolerance,
+    public static ImageCompareResult compare(BufferedImage imageA, BufferedImage imageB, ComparisonOptions options) throws IOException {
+        return compare(imageA, imageB,
                 new Rectangle(0, 0, imageA.getWidth(), imageA.getHeight()),
-                new Rectangle(0, 0, imageB.getWidth(), imageB.getHeight()));
+                new Rectangle(0, 0, imageB.getWidth(), imageB.getHeight()),
+                options);
     }
 
 
-    public static ImageCompareResult compare(BufferedImage imageA, BufferedImage imageB, int pixelSmooth, int tolerance, Rectangle areaA, Rectangle areaB) {
-        if (tolerance < 0 ) {
-            tolerance = 0;
+    public static ImageCompareResult compare(BufferedImage imageA, BufferedImage imageB, Rectangle areaA, Rectangle areaB, ComparisonOptions options) throws IOException {
+        if (options.getTolerance() < 0 ) {
+            options.setTolerance(0);
         }
 
         if (areaA.width + areaA.x > imageA.getWidth() ||
@@ -68,7 +69,7 @@ public class Rainbow4J {
             throw new RuntimeException("Specified area is outside for secondary image");
         }
 
-        BufferedImage comparisonMap = new BufferedImage(areaA.width, areaA.height, BufferedImage.TYPE_INT_RGB);
+        ImageHandler mapHandler = new ImageHandler(areaA.width, areaA.height);
 
         int Cax = areaA.x;
         int Cay = areaA.y;
@@ -86,53 +87,53 @@ public class Rainbow4J {
         double Ky = ((double)Hb) / ((double)Ha);
 
 
-        ImageNavigator navA = new ImageNavigator(imageA);
-        ImageNavigator navB = new ImageNavigator(imageB);
+        ImageHandler handlerA = new ImageHandler(imageA);
+        ImageHandler handlerB = new ImageHandler(imageB);
 
         int x = 0, y = 0;
 
-        double totalMismatchingPixels = 0;
+        applyAllFilters(areaA, areaB, options, handlerA, handlerB);
+
+        int tolerance = options.getTolerance();
 
         while(y < Ha) {
             while (x < Wa) {
                 int xA = x + Cax;
                 int yA = y + Cay;
 
-                Color cA = navA.getSmoothedColor(Math.max(Cax, xA - pixelSmooth),
-                                                Math.max(Cay, yA - pixelSmooth),
-                                                Math.min(Cax + Wa, xA + pixelSmooth),
-                                                Math.min(Cay + Ha, yA + pixelSmooth));
+                Color cA = handlerA.pickColor(xA, yA);
 
-                int xB = (int)Math.round((((double)x) * Kx) + Cbx);
-                int yB = (int)Math.round(((double)y) * Ky + Cby);
+                int xB, yB;
 
-                xB = Math.min(xB, Cbx + Wb - 1);
-                yB = Math.min(yB, Cby + Hb - 1);
-
-                Color cB = navB.getSmoothedColor(Math.max(Cbx, xB - pixelSmooth),
-                        Math.max(Cby, yB - pixelSmooth),
-                        Math.min(Cbx + Wb, xB + pixelSmooth),
-                        Math.min(Cby + Hb, yB + pixelSmooth));
-
-                long colorError = ImageNavigator.colorDiff(cA, cB);
-                if (colorError > tolerance) {
-                    totalMismatchingPixels += 1;
-
-                    int color = 0xff3333;
-                    if (tolerance > 0) {
-                        int level = (int) (colorError / tolerance);
-                        if (level == 2) {
-                            color = 0xFFEA00;
-                        }
-                        else if (level < 2) {
-                            color = 0x00ff00;
-                        }
-                    }
-
-                    comparisonMap.setRGB(x, y, color);
+                if (options.isStretchToFit()) {
+                    xB = (int) Math.round((((double) x) * Kx) + Cbx);
+                    yB = (int) Math.round(((double) y) * Ky + Cby);
+                    xB = Math.min(xB, Cbx + Wb - 1);
+                    yB = Math.min(yB, Cby + Hb - 1);
                 }
                 else {
-                    comparisonMap.setRGB(x, y, 0x000000);
+                    xB = x + Cbx;
+                    yB = y + Cby;
+                }
+
+                Color cB = handlerB.pickColor(xB, yB);
+
+                long colorError = ImageHandler.colorDiff(cA, cB);
+                if (colorError > tolerance) {
+
+                    Color color = Color.red;
+
+                    int diff = (int) (colorError - tolerance);
+                    if (diff > 30 && diff < 80) {
+                        color = Color.yellow;
+                    }
+                    else if (diff <= 30){
+                        color = Color.green;
+                    }
+                    mapHandler.setRGB(x, y, color.getRed(), color.getGreen(), color.getBlue());
+                }
+                else {
+                    mapHandler.setRGB(x, y, 0, 0, 0);
                 }
 
                 x += 1;
@@ -141,24 +142,49 @@ public class Rainbow4J {
             x = 0;
         }
 
+        applyAllMapFilters(mapHandler, options);
+
+        return analyzeComparisonMap(mapHandler);
+    }
+
+    private static ImageCompareResult analyzeComparisonMap(ImageHandler mapHandler) throws IOException {
         ImageCompareResult result = new ImageCompareResult();
 
-        double totalPixels = (Wa * Ha);
-        result.setPercentage(100.0 * totalMismatchingPixels / totalPixels);
+        int totalMismatchingPixels = 0;
 
+        byte[] bytes = mapHandler.getBytes();
+
+        for (int k = 0; k < bytes.length - 3; k += 3) {
+            if (((int)bytes[k] &0xff) > 0 || ((int)bytes[k + 1] &0xff) > 0 || ((int)bytes[k + 2] &0xff) > 0) {
+                totalMismatchingPixels++;
+            }
+
+
+        }
+
+        double totalPixels = (mapHandler.getWidth() * mapHandler.getHeight());
+        result.setPercentage(100.0 * totalMismatchingPixels / totalPixels);
         result.setTotalPixels((long)totalMismatchingPixels);
-        result.setComparisonMap(comparisonMap);
+        result.setComparisonMap(mapHandler.getImage());
         return result;
     }
 
-    private static double edgeCorrectionRatio(int x, int y, int step, int width, int height) {
-        int dw = width - x;
-        int dh = height - y;
-
-        if (dw < step || dh < step) {
-            return Math.min(dw, step) * Math.min(dh, step) / (step * step);
+    private static void applyAllFilters(Rectangle areaA, Rectangle areaB, ComparisonOptions options, ImageHandler handlerA, ImageHandler handlerB) {
+        if (options.getFilters() != null) {
+            for (ImageFilter filter : options.getFilters()) {
+                handlerA.applyFilter(filter, areaA);
+                handlerB.applyFilter(filter, areaB);
+            }
         }
-        return 1.0;
+    }
+
+    private static void applyAllMapFilters(ImageHandler mapHandler, ComparisonOptions options) {
+        if (options.getMapFilters() != null) {
+            Rectangle mapArea = new Rectangle(0, 0, mapHandler.getWidth(), mapHandler.getHeight());
+            for (ImageFilter filter : options.getMapFilters()) {
+                mapHandler.applyFilter(filter, mapArea);
+            }
+        }
     }
 
     /**

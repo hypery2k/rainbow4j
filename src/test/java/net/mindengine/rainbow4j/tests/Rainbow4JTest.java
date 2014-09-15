@@ -22,12 +22,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import net.mindengine.rainbow4j.ColorDistribution;
-import net.mindengine.rainbow4j.ImageCompareResult;
-import net.mindengine.rainbow4j.Rainbow4J;
-import net.mindengine.rainbow4j.Spectrum;
+import net.mindengine.rainbow4j.*;
 
-import org.hamcrest.Matchers;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -197,7 +193,12 @@ public class Rainbow4JTest {
         BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/comp-image-2.jpg").getFile());
 
-        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, pixelSmooth, 1);
+        ComparisonOptions options = new ComparisonOptions();
+        if (pixelSmooth > 0) {
+            options.addFilter(new SmoothFilter(pixelSmooth));
+        }
+
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, options);
 
         assertThat(diff.getPercentage(), is(greaterThan(approxPercentage - 0.02)));
         assertThat(diff.getPercentage(), is(lessThan(approxPercentage + 0.02)));
@@ -210,7 +211,11 @@ public class Rainbow4JTest {
         BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/comp-image-1-scaled-down.jpg").getFile());
 
-        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 0, 10);
+        ComparisonOptions options = new ComparisonOptions();
+        options.setStretchToFit(true);
+        options.setTolerance(10);
+
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, options);
 
         assertThat(diff.getTotalPixels(), is(lessThan(5700L)));
         assertThat(diff.getPercentage(), is(lessThan(2.26)));
@@ -221,7 +226,10 @@ public class Rainbow4JTest {
         BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/comp-image-1.jpg").getFile());
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/comp-image-3-scaled-down.jpg").getFile());
 
-        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 0, 10);
+        ComparisonOptions options = new ComparisonOptions();
+        options.setStretchToFit(true);
+        options.setTolerance(10);
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, options);
 
         assertThat(diff.getTotalPixels(), is(greaterThan(13800L)));
         assertThat(diff.getTotalPixels(), is(lessThan(14000L)));
@@ -235,8 +243,10 @@ public class Rainbow4JTest {
         BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/page-screenshot.png").getFile());
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/page-sample-correct.png").getFile());
 
+        ComparisonOptions options = new ComparisonOptions();
+        options.setTolerance(2);
 
-        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 0, 2, new Rectangle(100, 90, 100, 40), new Rectangle(40, 40, 100, 40));
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, new Rectangle(100, 90, 100, 40), new Rectangle(40, 40, 100, 40), options);
 
         assertThat(diff.getTotalPixels(), is(lessThan(2L)));
         assertThat(diff.getPercentage(), is(lessThan(0.01)));
@@ -248,10 +258,29 @@ public class Rainbow4JTest {
         BufferedImage imageA = Rainbow4J.loadImage(getClass().getResource("/page-screenshot-1.png").getFile());
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/page-screenshot-1-sample-1.png").getFile());
 
+        ComparisonOptions options = new ComparisonOptions();
+        options.addFilter(new SmoothFilter(1));
+        options.setTolerance(100);
 
-        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, 5, 100, new Rectangle(0, 70, 100, 64), new Rectangle(0, 0, imageB.getWidth(), imageB.getHeight()));
+        ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, new Rectangle(0, 70, 100, 64), new Rectangle(0, 0, imageB.getWidth(), imageB.getHeight()), options);
 
         assertThat(diff.getComparisonMap(), is(notNullValue()));
+    }
+
+    @Test
+    public void shouldSmoothImage() throws IOException {
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/page-screenshot-1-sample-1.png").getFile());
+
+        ImageHandler handler = new ImageHandler(image);
+        handler.applyFilter(new SmoothFilter(2), new Rectangle(0, 0, image.getWidth()/2, image.getHeight()/2));
+    }
+
+    @Test
+    public void shouldRemoveNoiseImage() throws IOException {
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/denoise.png").getFile());
+
+        ImageHandler handler = new ImageHandler(image);
+        handler.applyFilter(new DenoiseFilter(10), new Rectangle(0, 0, image.getWidth(), image.getHeight()));
     }
 
 
@@ -259,10 +288,10 @@ public class Rainbow4JTest {
     public Object[][] imageCompareProvider() {
         return new Object[][] {
                 //pixelsmooth,  approx percentage, total pixels
-                {0, 0.57, 1436L},
-                {1, 0.85, 2148},
-                {2, 1.0116, 2529},
-                {10, 1.95, 4896}
+                {0, 0.64, 1618L},
+                {1, 0.9, 2261},
+                {2, 1.04, 2608},
+                {3, 1.17, 2927}
         };
     }
 
