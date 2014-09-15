@@ -55,7 +55,7 @@ public class Rainbow4J {
     }
 
 
-    public static ImageCompareResult compare(BufferedImage imageA, BufferedImage imageB, Rectangle areaA, Rectangle areaB, ComparisonOptions options) throws IOException {
+    public static ImageCompareResult compare(BufferedImage imageA, BufferedImage imageB, Rectangle areaA, Rectangle areaB, ComparisonOptions options) {
         if (options.getTolerance() < 0 ) {
             options.setTolerance(0);
         }
@@ -147,7 +147,7 @@ public class Rainbow4J {
         return analyzeComparisonMap(mapHandler);
     }
 
-    private static ImageCompareResult analyzeComparisonMap(ImageHandler mapHandler) throws IOException {
+    private static ImageCompareResult analyzeComparisonMap(ImageHandler mapHandler) {
         ImageCompareResult result = new ImageCompareResult();
 
         int totalMismatchingPixels = 0;

@@ -129,7 +129,7 @@ public class ImageHandler {
     }
 
 
-    public BufferedImage getImage() throws IOException {
+    public BufferedImage getImage() {
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 
         for(int r=0; r< height; r++) {
