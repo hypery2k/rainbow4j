@@ -24,10 +24,10 @@ import java.awt.*;
 /**
  * Created by ishubin on 2014/09/14.
  */
-public class SmoothFilter implements ImageFilter {
+public class BlurFilter implements ImageFilter {
     private int radius;
 
-    public SmoothFilter(int radius) {
+    public BlurFilter(int radius) {
         this.radius = radius;
     }
 

@@ -24,9 +24,9 @@ import java.util.List;
 
 import net.mindengine.rainbow4j.*;
 
+import net.mindengine.rainbow4j.filters.BlurFilter;
 import net.mindengine.rainbow4j.filters.ContrastFilter;
 import net.mindengine.rainbow4j.filters.DenoiseFilter;
-import net.mindengine.rainbow4j.filters.SmoothFilter;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -198,7 +198,7 @@ public class Rainbow4JTest {
 
         ComparisonOptions options = new ComparisonOptions();
         if (pixelSmooth > 0) {
-            options.addFilter(new SmoothFilter(pixelSmooth));
+            options.addFilter(new BlurFilter(pixelSmooth));
         }
 
         ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, options);
@@ -262,7 +262,7 @@ public class Rainbow4JTest {
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/page-screenshot-1-sample-1.png").getFile());
 
         ComparisonOptions options = new ComparisonOptions();
-        options.addFilter(new SmoothFilter(1));
+        options.addFilter(new BlurFilter(1));
         options.setTolerance(100);
 
         ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, new Rectangle(0, 70, 100, 64), new Rectangle(0, 0, imageB.getWidth(), imageB.getHeight()), options);
@@ -275,7 +275,7 @@ public class Rainbow4JTest {
         BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/page-screenshot-1-sample-1.png").getFile());
 
         ImageHandler handler = new ImageHandler(image);
-        handler.applyFilter(new SmoothFilter(2), new Rectangle(0, 0, image.getWidth()/2, image.getHeight()/2));
+        handler.applyFilter(new BlurFilter(2), new Rectangle(0, 0, image.getWidth()/2, image.getHeight()/2));
     }
 
     @Test
