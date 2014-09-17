@@ -27,6 +27,7 @@ import net.mindengine.rainbow4j.*;
 import net.mindengine.rainbow4j.filters.BlurFilter;
 import net.mindengine.rainbow4j.filters.ContrastFilter;
 import net.mindengine.rainbow4j.filters.DenoiseFilter;
+import net.mindengine.rainbow4j.filters.SaturationFilter;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -298,15 +299,25 @@ public class Rainbow4JTest {
         Rainbow4J.saveImage(handler.getImage(), new File("/home/ishubin/contrast.png"));
     }
 
+    @Test
+    public  void shouldApplySaturation_toImage() throws  IOException {
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/color-scheme-image-2.png"));
+
+        ImageHandler handler = new ImageHandler(image);
+        handler.applyFilter(new SaturationFilter(0));
+
+        Rainbow4J.saveImage(handler.getImage(), new File("/home/ishubin/saturation.png"));
+    }
+
 
     @DataProvider
     public Object[][] imageCompareProvider() {
         return new Object[][] {
                 //pixelsmooth,  approx percentage, total pixels
                 {0, 0.64, 1618L},
-                {1, 0.9, 2261},
-                {2, 1.04, 2608},
-                {3, 1.17, 2927}
+                {1, 0.64, 1618},
+                {2, 0.76, 1900},
+                {3, 0.69, 1727}
         };
     }
 
