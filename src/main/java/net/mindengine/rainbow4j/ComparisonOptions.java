@@ -15,6 +15,8 @@
 ******************************************************************************/
 package net.mindengine.rainbow4j;
 
+import net.mindengine.rainbow4j.filters.ImageFilter;
+
 import java.util.LinkedList;
 import java.util.List;
 

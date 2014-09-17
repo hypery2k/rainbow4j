@@ -13,10 +13,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 ******************************************************************************/
-package net.mindengine.rainbow4j;
+package net.mindengine.rainbow4j.filters;
 
-import net.mindengine.rainbow4j.ImageFilter;
 import net.mindengine.rainbow4j.ImageHandler;
+import net.mindengine.rainbow4j.filters.ImageFilter;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.awt.*;

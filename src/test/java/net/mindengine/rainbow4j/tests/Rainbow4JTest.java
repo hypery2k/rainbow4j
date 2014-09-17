@@ -24,6 +24,9 @@ import java.util.List;
 
 import net.mindengine.rainbow4j.*;
 
+import net.mindengine.rainbow4j.filters.ContrastFilter;
+import net.mindengine.rainbow4j.filters.DenoiseFilter;
+import net.mindengine.rainbow4j.filters.SmoothFilter;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -281,6 +284,16 @@ public class Rainbow4JTest {
 
         ImageHandler handler = new ImageHandler(image);
         handler.applyFilter(new DenoiseFilter(10), new Rectangle(0, 0, image.getWidth(), image.getHeight()));
+    }
+
+    @Test
+    public void shouldApplyContrast_toImage() throws IOException {
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/color-scheme-image-2.png"));
+
+        ImageHandler handler = new ImageHandler(image);
+        handler.applyFilter(new ContrastFilter(10));
+
+        Rainbow4J.saveImage(handler.getImage(), new File("/home/ishubin/contrast.png"));
     }
 
 

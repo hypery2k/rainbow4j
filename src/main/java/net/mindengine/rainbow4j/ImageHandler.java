@@ -14,12 +14,11 @@
 * limitations under the License.
 ******************************************************************************/
 package net.mindengine.rainbow4j;
-
-import org.apache.commons.lang3.ArrayUtils;
+import net.mindengine.rainbow4j.filters.ImageFilter;
 
 import java.awt.*;
-import java.awt.image.*;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 
 public class ImageHandler {
     private byte[] bytes;
@@ -167,5 +166,10 @@ public class ImageHandler {
 
     public byte[] getBytes() {
         return bytes;
+    }
+
+
+    public void applyFilter(ImageFilter filter) {
+        this.applyFilter(filter, new Rectangle(0, 0, width, height));
     }
 }

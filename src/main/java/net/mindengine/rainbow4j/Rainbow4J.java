@@ -17,6 +17,7 @@ package net.mindengine.rainbow4j;
 
 
 import com.sun.media.jai.codec.*;
+import net.mindengine.rainbow4j.filters.ImageFilter;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
