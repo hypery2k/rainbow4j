@@ -275,7 +275,9 @@ public class Rainbow4JTest {
         BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/page-screenshot-1-sample-1.png").getFile());
 
         ImageHandler handler = new ImageHandler(image);
-        handler.applyFilter(new BlurFilter(2), new Rectangle(0, 0, image.getWidth()/2, image.getHeight()/2));
+        handler.applyFilter(new BlurFilter(10), new Rectangle(0, 0, image.getWidth(), image.getHeight()));
+
+        Rainbow4J.saveImage(handler.getImage(), new File("/home/ishubin/blur.png"));
     }
 
     @Test
