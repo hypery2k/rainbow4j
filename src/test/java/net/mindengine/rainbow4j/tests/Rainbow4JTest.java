@@ -277,8 +277,6 @@ public class Rainbow4JTest {
 
         ImageHandler handler = new ImageHandler(image);
         handler.applyFilter(new BlurFilter(10), new Rectangle(0, 0, image.getWidth(), image.getHeight()));
-
-        Rainbow4J.saveImage(handler.getImage(), new File("/home/ishubin/blur.png"));
     }
 
     @Test
@@ -295,8 +293,6 @@ public class Rainbow4JTest {
 
         ImageHandler handler = new ImageHandler(image);
         handler.applyFilter(new ContrastFilter(10));
-
-        Rainbow4J.saveImage(handler.getImage(), new File("/home/ishubin/contrast.png"));
     }
 
     @Test
@@ -304,9 +300,7 @@ public class Rainbow4JTest {
         BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/color-scheme-image-2.png"));
 
         ImageHandler handler = new ImageHandler(image);
-        handler.applyFilter(new SaturationFilter(0));
-
-        Rainbow4J.saveImage(handler.getImage(), new File("/home/ishubin/saturation.png"));
+        handler.applyFilter(new SaturationFilter(50));
     }
 
 

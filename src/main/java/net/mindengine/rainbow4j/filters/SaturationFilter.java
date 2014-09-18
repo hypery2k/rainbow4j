@@ -35,6 +35,14 @@ public class SaturationFilter implements ImageFilter {
 
     @Override
     public void apply(byte[] bytes, int width, int height, Rectangle area) {
+
+        if (level > 100) {
+            level = 100;
+        }
+        else if (level < 0) {
+            level = 0;
+        }
+
         double t = level / 100.0;
         for (int y = area.y; y < area.height; y++) {
             for (int x = area.x; x < area.width; x++) {
