@@ -29,7 +29,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Hashtable;
+import java.util.*;
+import java.util.List;
 
 import javax.media.jai.JAI;
 public class Rainbow4J {
@@ -143,7 +144,7 @@ public class Rainbow4J {
             x = 0;
         }
 
-        applyAllMapFilters(mapHandler, options);
+        applyFilters(mapHandler, options.getMapFilters(), new Rectangle(0, 0, mapHandler.getWidth(), mapHandler.getHeight()));
 
         return analyzeComparisonMap(mapHandler);
     }
@@ -171,19 +172,14 @@ public class Rainbow4J {
     }
 
     private static void applyAllFilters(Rectangle areaA, Rectangle areaB, ComparisonOptions options, ImageHandler handlerA, ImageHandler handlerB) {
-        if (options.getFilters() != null) {
-            for (ImageFilter filter : options.getFilters()) {
-                handlerA.applyFilter(filter, areaA);
-                handlerB.applyFilter(filter, areaB);
-            }
-        }
+        applyFilters(handlerA, options.getOriginalFilters(), areaA);
+        applyFilters(handlerB, options.getSampleFilters(), areaB);
     }
 
-    private static void applyAllMapFilters(ImageHandler mapHandler, ComparisonOptions options) {
-        if (options.getMapFilters() != null) {
-            Rectangle mapArea = new Rectangle(0, 0, mapHandler.getWidth(), mapHandler.getHeight());
-            for (ImageFilter filter : options.getMapFilters()) {
-                mapHandler.applyFilter(filter, mapArea);
+    private static void applyFilters(ImageHandler handler, List<ImageFilter> filters, Rectangle area) {
+        if (filters != null) {
+            for (ImageFilter filter : filters) {
+                handler.applyFilter(filter, area);
             }
         }
     }

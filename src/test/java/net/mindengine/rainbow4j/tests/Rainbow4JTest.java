@@ -199,7 +199,7 @@ public class Rainbow4JTest {
 
         ComparisonOptions options = new ComparisonOptions();
         if (pixelSmooth > 0) {
-            options.addFilter(new BlurFilter(pixelSmooth));
+            options.addFilterBoth(new BlurFilter(pixelSmooth));
         }
 
         ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, options);
@@ -263,7 +263,7 @@ public class Rainbow4JTest {
         BufferedImage imageB = Rainbow4J.loadImage(getClass().getResource("/page-screenshot-1-sample-1.png").getFile());
 
         ComparisonOptions options = new ComparisonOptions();
-        options.addFilter(new BlurFilter(1));
+        options.addFilterBoth(new BlurFilter(1));
         options.setTolerance(100);
 
         ImageCompareResult diff = Rainbow4J.compare(imageA, imageB, new Rectangle(0, 70, 100, 64), new Rectangle(0, 0, imageB.getWidth(), imageB.getHeight()), options);

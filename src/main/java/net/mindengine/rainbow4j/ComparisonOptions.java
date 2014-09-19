@@ -24,7 +24,8 @@ public class ComparisonOptions {
     private int tolerance;
     private boolean stretchToFit = false;
 
-    private List<ImageFilter> filters = new LinkedList<ImageFilter>();
+    private List<ImageFilter> originalFilters = new LinkedList<ImageFilter>();
+    private List<ImageFilter> sampleFilters = new LinkedList<ImageFilter>();
     private List<ImageFilter> mapFilters = new LinkedList<ImageFilter>();
 
     public void setTolerance(int tolerance) {
@@ -44,19 +45,24 @@ public class ComparisonOptions {
     }
 
 
-    public List<ImageFilter> getFilters() {
-        return filters;
+
+    public void addFilterBoth(ImageFilter filter) {
+        addFilterOriginal(filter);
+        addFilterSample(filter);
     }
 
-    public void setFilters(List<ImageFilter> filters) {
-        this.filters = filters;
-    }
-
-    public void addFilter(ImageFilter filter) {
-        if (filters == null) {
-            filters = new LinkedList<ImageFilter>();
+    public void addFilterSample(ImageFilter filter) {
+        if (sampleFilters == null) {
+            sampleFilters = new LinkedList<ImageFilter>();
         }
-        filters.add(filter);
+        sampleFilters.add(filter);
+    }
+
+    public void addFilterOriginal(ImageFilter filter) {
+        if (originalFilters == null) {
+            originalFilters = new LinkedList<ImageFilter>();
+        }
+        originalFilters.add(filter);
     }
 
     public List<ImageFilter> getMapFilters() {
@@ -73,5 +79,21 @@ public class ComparisonOptions {
         }
 
         mapFilters.add(imageFilter);
+    }
+
+    public List<ImageFilter> getOriginalFilters() {
+        return originalFilters;
+    }
+
+    public void setOriginalFilters(List<ImageFilter> originalFilters) {
+        this.originalFilters = originalFilters;
+    }
+
+    public List<ImageFilter> getSampleFilters() {
+        return sampleFilters;
+    }
+
+    public void setSampleFilters(List<ImageFilter> sampleFilters) {
+        this.sampleFilters = sampleFilters;
     }
 }
