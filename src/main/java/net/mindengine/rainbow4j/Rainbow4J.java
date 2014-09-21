@@ -146,7 +146,12 @@ public class Rainbow4J {
 
         applyFilters(mapHandler, options.getMapFilters(), new Rectangle(0, 0, mapHandler.getWidth(), mapHandler.getHeight()));
 
-        return analyzeComparisonMap(mapHandler);
+        ImageCompareResult result = analyzeComparisonMap(mapHandler);
+
+        result.setOriginalFilteredImage(handlerA.getImage());
+        result.setSampleFilteredImage(handlerB.getImage());
+
+        return result;
     }
 
     private static ImageCompareResult analyzeComparisonMap(ImageHandler mapHandler) {
@@ -160,8 +165,6 @@ public class Rainbow4J {
             if (((int)bytes[k] &0xff) > 0 || ((int)bytes[k + 1] &0xff) > 0 || ((int)bytes[k + 2] &0xff) > 0) {
                 totalMismatchingPixels++;
             }
-
-
         }
 
         double totalPixels = (mapHandler.getWidth() * mapHandler.getHeight());

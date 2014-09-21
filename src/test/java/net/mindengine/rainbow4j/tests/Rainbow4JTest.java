@@ -24,10 +24,7 @@ import java.util.List;
 
 import net.mindengine.rainbow4j.*;
 
-import net.mindengine.rainbow4j.filters.BlurFilter;
-import net.mindengine.rainbow4j.filters.ContrastFilter;
-import net.mindengine.rainbow4j.filters.DenoiseFilter;
-import net.mindengine.rainbow4j.filters.SaturationFilter;
+import net.mindengine.rainbow4j.filters.*;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -301,6 +298,16 @@ public class Rainbow4JTest {
 
         ImageHandler handler = new ImageHandler(image);
         handler.applyFilter(new SaturationFilter(50));
+    }
+
+    @Test
+    public void shouldApplyQuantinzation_toImage() throws IOException {
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/color-scheme-image-2.png"));
+
+        ImageHandler handler = new ImageHandler(image);
+        handler.applyFilter(new QuantinizeFilter(5));
+
+        Rainbow4J.saveImage(handler.getImage(), new File("/home/ishubin/quantinzed.png"));
     }
 
 

@@ -22,6 +22,8 @@ public class ImageCompareResult {
     private double percentage;
     private long totalPixels;
     private BufferedImage comparisonMap;
+    private BufferedImage originalFilteredImage;
+    private BufferedImage sampleFilteredImage;
 
     public void setPercentage(double percentage) {
         this.percentage = percentage;
@@ -45,5 +47,21 @@ public class ImageCompareResult {
 
     public void setComparisonMap(BufferedImage comparisonMap) {
         this.comparisonMap = comparisonMap;
+    }
+
+    public void setOriginalFilteredImage(BufferedImage originalFilteredImage) {
+        this.originalFilteredImage = originalFilteredImage;
+    }
+
+    public BufferedImage getOriginalFilteredImage() {
+        return originalFilteredImage;
+    }
+
+    public void setSampleFilteredImage(BufferedImage sampleFilteredImage) {
+        this.sampleFilteredImage = sampleFilteredImage;
+    }
+
+    public BufferedImage getSampleFilteredImage() {
+        return sampleFilteredImage;
     }
 }
