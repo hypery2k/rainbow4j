@@ -270,7 +270,7 @@ public class Rainbow4JTest {
 
     @Test
     public void shouldSmoothImage() throws IOException {
-        BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/page-screenshot-1-sample-1.png").getFile());
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResource("/lenna.jpg").getFile());
 
         ImageHandler handler = new ImageHandler(image);
         handler.applyFilter(new BlurFilter(10), new Rectangle(0, 0, image.getWidth(), image.getHeight()));
@@ -286,28 +286,26 @@ public class Rainbow4JTest {
 
     @Test
     public void shouldApplyContrast_toImage() throws IOException {
-        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/color-scheme-image-2.png"));
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/lenna.jpg"));
 
         ImageHandler handler = new ImageHandler(image);
-        handler.applyFilter(new ContrastFilter(10));
+        handler.applyFilter(new ContrastFilter(200));
     }
 
     @Test
     public  void shouldApplySaturation_toImage() throws  IOException {
-        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/color-scheme-image-2.png"));
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/lenna.jpg"));
 
         ImageHandler handler = new ImageHandler(image);
-        handler.applyFilter(new SaturationFilter(50));
+        handler.applyFilter(new SaturationFilter(0));
     }
 
     @Test
     public void shouldApplyQuantinzation_toImage() throws IOException {
-        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/color-scheme-image-2.png"));
+        BufferedImage image = Rainbow4J.loadImage(getClass().getResourceAsStream("/lenna.jpg"));
 
         ImageHandler handler = new ImageHandler(image);
-        handler.applyFilter(new QuantinizeFilter(5));
-
-        Rainbow4J.saveImage(handler.getImage(), new File("/home/ishubin/quantinzed.png"));
+        handler.applyFilter(new QuantinizeFilter(2));
     }
 
 
